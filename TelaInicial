@@ -1,0 +1,36 @@
+package bbbb;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class TelaInicial {
+    JFrame telaInicial;
+
+    public TelaInicial(){
+        JFrame telaInicial = new JFrame("Tipo de Operaçao");
+        telaInicial.setSize(400, 100);
+        telaInicial.setVisible(true);
+        telaInicial.setLayout(new BorderLayout());
+        telaInicial.setLocationRelativeTo(null);
+
+        JLabel mensagem = new JLabel("Informe a quantidade de matrizes:");
+        mensagem.setFont(new Font("Arial", Font.ITALIC, 25));
+        telaInicial.add(mensagem, BorderLayout.NORTH);
+
+        JPanel bPanel = new JPanel(new FlowLayout());
+        JButton opcao1 = new JButton("UMA MATRIZ");
+        JButton opcao2 = new JButton("DUAS MATRIZES");
+        bPanel.add(opcao1);
+        bPanel.add(opcao2);
+
+        opcao1.addActionListener(e -> new Calculadora2());
+        opcao2.addActionListener(e -> new Calculadora());
+
+        telaInicial.add(bPanel, BorderLayout.CENTER);
+    }
+    public void abrirCalculadora(){
+        new Calculadora2();
+
+    }
+
+}
