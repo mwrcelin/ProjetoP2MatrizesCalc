@@ -1,0 +1,128 @@
+package bbbb;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class Calculadora {
+    private JTextField[][] matrizA, matrizB, matrizResultado;
+    private int linhas = 3, colunas = 3;
+
+    public Calculadora(){
+        JFrame tela = new JFrame("Calculadora de Matrizes");
+        tela.setSize(600, 600);
+        tela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        tela.setResizable(false);
+        tela.setLayout(new BorderLayout());
+        tela.setLocationRelativeTo(null);
+
+        JPanel matrizesPanel = new JPanel(new GridLayout(1, 3, 10, 10));
+        matrizA = criadorMatriz("Matriz A", matrizesPanel);
+        matrizB = criadorMatriz("Matriz B", matrizesPanel);
+        matrizResultado = criadorMatriz("Resultado", matrizesPanel);
+        tela.add(matrizesPanel, BorderLayout.CENTER);
+        tela.setVisible(true);
+
+        JPanel bPanel = new JPanel(new FlowLayout());
+        JButton bSoma = new JButton("SOMA");
+        JButton bSub = new JButton("SUBTRAÇÃO");
+        JButton bMult = new JButton("MULTIPLICAÇÃO");
+        JButton bVoltar = new JButton("VOLTAR");
+
+        bPanel.add(bSoma);
+        bPanel.add(bSub);
+        bPanel.add(bMult);
+        bPanel.add(bVoltar);
+        tela.add(bPanel, BorderLayout.SOUTH);
+
+        bSoma.addActionListener(e -> realizarOperacao("soma"));
+        bSub.addActionListener(e -> realizarOperacao("subtracao"));
+        bMult.addActionListener(e -> realizarOperacao("multiplicacao"));
+        bVoltar.addActionListener(e -> new TelaInicial());
+
+    }
+    public JTextField[][] criadorMatriz(String nome, JPanel matrizes){
+        JPanel panel = new JPanel(new GridLayout(linhas, colunas, 10, 10));
+        panel.setBorder(BorderFactory.createTitledBorder(nome));
+        JTextField[][] matriz = new JTextField[linhas][colunas];
+        for(int i = 0; i < linhas; i++){
+            for (int j = 0; j < colunas; j++){
+                matriz[i][j] = new JTextField();
+                panel.add(matriz[i][j]);
+            }
+        }
+        matrizes.add(panel);
+        return matriz;
+
+    }
+    public int[][] leitorMatrizes(JTextField[][] elementos){
+        int[][] matriz = new int[linhas][colunas];
+        for (int i = 0; i < linhas; i++){
+            for (int j = 0; j < colunas; j++){
+                matriz[i][j] = Integer.parseInt(elementos[i][j].getText());
+            }
+        }
+        return matriz;
+
+    }
+    public void escreverMatriz(JTextField[][] elementos, int[][] matriz){
+        for (int i = 0; i < linhas; i++){
+            for (int j = 0; j < colunas; j++){
+                elementos[i][j].setText(String.valueOf(matriz[i][j]));
+            }
+        }
+
+    }
+    public int[][] soma(int[][] a, int[][] b){
+        int[][] resultado = new int[linhas][colunas];
+        for (int i = 0; i < linhas; i++){
+            for (int j = 0; j < colunas; j++){
+                resultado[i][j] = a[i][j] + b[i][j];
+            }
+        }
+        return resultado;
+
+    }
+    public int[][] subtracao(int[][] a, int[][] b){
+        int[][] resultado = new int[linhas][colunas];
+        for (int i = 0; i < linhas; i++){
+            for (int j = 0; j < colunas; j++){
+                resultado[i][j] = a[i][j] - b[i][j];
+            }
+        }
+        return resultado;
+    }
+    public int[][] multiplicacao(int[][] a, int[][] b){
+        int[][] resultado = new int[linhas][colunas];
+        for (int i = 0; i < linhas; i++) {
+            for (int j = 0; j < colunas; j++) {
+                for (int k = 0; k < colunas; k++) {
+                    resultado[i][j] += a[i][k] * b[k][j];
+                }
+            }
+        }
+
+        return resultado;
+    }
+    public void realizarOperacao(String operacao){
+        int[][] a = leitorMatrizes(matrizA);
+        int[][] b = leitorMatrizes(matrizB);
+        int[][] resultado;
+
+        switch (operacao){
+            case "soma":
+                resultado = soma(a, b);
+                break;
+            case "subtracao":
+                resultado = subtracao(a, b);
+                break;
+            case "multiplicacao":
+                resultado = multiplicacao(a, b);
+                break;
+            default:
+                throw new IllegalArgumentException("Operação invalida!");
+        }
+        escreverMatriz(matrizResultado, resultado);
+
+    }
+
+}
