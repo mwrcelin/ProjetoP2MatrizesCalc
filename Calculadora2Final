@@ -1,0 +1,173 @@
+package bbbb;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class Calculadora2 {
+    private JTextField[][] matriz;
+    private JTextField[][] resultado;
+    private int linhas = 3;
+    private int colunas = 3;
+
+    public Calculadora2() {
+        JFrame calc2 = new JFrame("Calculadora de Matriz");
+        calc2.setSize(600, 600);
+        calc2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        calc2.setResizable(false);
+        calc2.setLayout(new BorderLayout());
+        calc2.setLocationRelativeTo(null);
+        calc2.setVisible(true);
+
+        JPanel matrizesPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        matriz = criadorMatriz("Matriz", matrizesPanel);
+        resultado = criadorMatriz("Resultado", matrizesPanel);
+        calc2.add(matrizesPanel, BorderLayout.CENTER);
+
+        JPanel bPanel = new JPanel(new FlowLayout());
+        JButton bDet = new JButton("DETERMINANTE");
+        JButton bTrp = new JButton("TRANSPOSTA");
+        JButton bInv = new JButton("INVERSA");
+
+        JButton bVoltar = new JButton("VOLTAR");
+
+        bPanel.add(bDet);
+        bPanel.add(bTrp);
+        bPanel.add(bInv);
+        bPanel.add(bVoltar);
+
+        bDet.addActionListener(e -> calcularDeterminante());
+        bTrp.addActionListener(e -> realizarOperacao("transposta"));
+        bInv.addActionListener(e -> realizarOperacao("inversa"));
+
+        bVoltar.addActionListener(e -> new TelaInicial());
+
+        calc2.add(bPanel, BorderLayout.SOUTH);
+
+    }
+
+    public JTextField[][] criadorMatriz(String nome, JPanel matrizes) {
+        JPanel panel = new JPanel(new GridLayout(linhas, colunas, 5, 5));
+        panel.setBorder(BorderFactory.createTitledBorder(nome));
+        JTextField[][] matriz = new JTextField[linhas][colunas];
+        for (int i = 0; i < linhas; i++) {
+            for (int j = 0; j < colunas; j++) {
+                matriz[i][j] = new JTextField();
+                panel.add(matriz[i][j]);
+            }
+        }
+        matrizes.add(panel);
+        return matriz;
+
+    }
+
+    public double[][] leitorMatrizes(JTextField[][] elementos) {
+        double[][] matriz = new double[linhas][colunas];
+        for (int i = 0; i < linhas; i++) {
+            for (int j = 0; j < colunas; j++) {
+                matriz[i][j] = Integer.parseInt(elementos[i][j].getText());
+            }
+        }
+        return matriz;
+
+    }
+
+    public void escreverMatriz(JTextField[][] elementos, double[][] matriz) {
+        for (int i = 0; i < linhas; i++) {
+            for (int j = 0; j < colunas; j++) {
+                elementos[i][j].setText(String.valueOf(matriz[i][j]));
+            }
+        }
+
+    }
+
+    static void obtercofator(double matriz[][], double apoio[][], int p, int q, int n) {
+        int j = 0, i = 0;
+        for (int linha = 0; linha < n; linha++) {
+            for (int coluna = 0; coluna < n; coluna++) {
+                if (linha != p && coluna != q) {
+                    apoio[i][j++] = matriz[linha][coluna];
+                    if (j == n - 1) {
+                        j = 0;
+                        i++;
+                    }
+                }
+            }
+        }
+    }
+
+    public double determinanteMatriz(double[][] a, int n) {
+        double determinante = 0;
+        if (n == 1) {
+            return a[0][0];
+        }
+        double apoio[][] = new double[n][n];
+        double multiplicador = 1;
+
+        for (int k = 0; k < n; k++) {
+            obtercofator(a, apoio, 0, k, n);
+            determinante += multiplicador * a[0][k] * determinanteMatriz(apoio, n - 1);
+            multiplicador = -multiplicador;
+        }
+        return determinante;
+    }
+
+    public void calcularDeterminante() {
+        double[][] matrizNumeros = leitorMatrizes(matriz);
+        double determinante = determinanteMatriz(matrizNumeros, linhas);
+        JOptionPane.showMessageDialog(null, "Determinante: " + determinante);
+    }
+    public double[][] transposta(double[][] a){
+        double[][] resultado = new double[linhas][colunas];
+        for (int i = 0; i < linhas; i++){
+            for (int j = 0; j < colunas; j++){
+                resultado[i][j] = a[j][i];
+            }
+        }
+        return resultado;
+    }
+    public double[][] inversa(double[][] a) {
+        double determinante = determinanteMatriz(a, linhas);
+        if (determinante == 0){
+            JOptionPane.showMessageDialog(null, "A matriz não possui inversa.");
+            return null;
+        }
+
+        int[][] adjunta = new int[linhas][colunas];
+        double[][] apoio = new double[linhas][colunas];
+        for (int i = 0; i < linhas; i++) {
+            for (int j = 0; j < colunas; j++) {
+                obtercofator(a, apoio, i, j, linhas);
+                adjunta[j][i] = (int) (Math.pow(-1, i + j) * determinanteMatriz(apoio, linhas - 1));
+            }
+        }
+
+        double[][] inversa = new double[linhas][colunas];
+        for (int i = 0; i < linhas; i++) {
+            for (int j = 0; j < colunas; j++) {
+                inversa[i][j] = adjunta[i][j] / determinante;
+            }
+        }
+        return inversa;
+    }
+    public void realizarOperacao(String operacao){
+        double[][] a = leitorMatrizes(matriz);
+        double[][] resultadoMatriz;
+
+        switch (operacao){
+            case "transposta":
+                resultadoMatriz = transposta(a);
+                break;
+            case "inversa":
+                resultadoMatriz = inversa(a);
+                if(resultadoMatriz == null){
+                    return;
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Operação invalida!");
+        }
+        escreverMatriz(resultado, resultadoMatriz);
+
+    }
+
+}
